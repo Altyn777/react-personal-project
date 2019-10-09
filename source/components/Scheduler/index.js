@@ -10,6 +10,8 @@ export default class Scheduler extends Component {
         return (
             <section className = { Styles.scheduler }>
                 Планировщик: стартовая точка
+                <textarea placeholder = { `Новая задача` } />
+                <input type = 'submit' value = 'Create Task' />
             </section>
         );
     }
