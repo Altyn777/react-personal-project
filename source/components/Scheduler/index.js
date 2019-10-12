@@ -6,6 +6,7 @@ import Styles from './styles.m.css';
 import { api } from '../../REST'; // ! Импорт модуля API должен иметь именно такой вид (import { api } from '../../REST')
 import Spinner from "../Spinner";
 import Checkbox from "../../theme/assets/Checkbox";
+import Task from "../Task";
 
 export default class Scheduler extends Component {
     render () {
@@ -25,10 +26,16 @@ export default class Scheduler extends Component {
                                 placeholer = 'Новая задача'
                                 type = 'text'
                             />
-                            <button>Добавить</button>
+                            <button>Создать</button>
                         </form>
                         <ul>
-                            <li>hi</li>
+                            <Task
+                                completed
+                                favorite
+                                id
+                                key
+                                message = 'Task'
+                            />
                         </ul>
                     </section>
                     <footer>
