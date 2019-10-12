@@ -5,10 +5,13 @@ import React, { Component } from 'react';
 import Task from "../Task";
 import Scheduler from "../Scheduler";
 
+// Instruments
+import Styles from './styles.m.css';
+
 export default class Schedule extends Component {
     render () {
         return (
-            <section>
+            <section className = { Styles.schedule }>
                 <Scheduler />
                 <Task />
             </section>
