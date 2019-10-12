@@ -1,5 +1,6 @@
 // Core
 import React, { PureComponent } from 'react';
+import moment from "moment";
 
 // Instruments
 import Styles from './styles.m.css';
@@ -18,6 +19,12 @@ export default class Task extends PureComponent {
     });
 
     render () {
-        return <li className = { Styles.task }>Задача: стартовая точка</li>;
+        return (
+            <section>
+                <li className = { Styles.task } >
+                    <p>Задача: {this.props.message}</p>
+                    <time>{moment().format('D MMMM h:mm a')}</time>
+                </li>
+            </section>);
     }
 }
