@@ -9,10 +9,20 @@ import Checkbox from "../../theme/assets/Checkbox";
 import Task from "../Task";
 
 export default class Scheduler extends Component {
+    state = {
+        tasks: [{ id: '123', message: 'first' }, { id: '163', message: 'second' }],
+        isSpinning: false,
+    };
     render () {
+        const { tasks, isSpinning } = this.state;
+
+        const tasksJSX = tasks.map((task) => {
+            return <Task key = { task.id } { ...task } />;
+        });
+
         return (
             <section className = { Styles.scheduler }>
-                <Spinner />
+                <Spinner isSpinning = { isSpinning } />
                 <main>
                     <header>
                         <h1>Планировщик:</h1>
@@ -29,13 +39,7 @@ export default class Scheduler extends Component {
                             <button>Создать</button>
                         </form>
                         <ul>
-                            <Task
-                                completed
-                                favorite
-                                id
-                                key
-                                message = 'Task'
-                            />
+                            {tasksJSX}
                         </ul>
                     </section>
                     <footer>
