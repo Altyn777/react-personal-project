@@ -57,3 +57,17 @@ export class BaseTaskModel {
         this.message = message;
     }
 }
+
+export const getUniqueID = (length = 15) => {
+    if (typeof length !== "number") {
+        throw new Error("The f arg should be a num!");
+    }
+    let text = "";
+    const possible = "ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (let i = 0; i < length; i++) {
+        text += possible.charAt(Math.floor(Math.random()*possible.length));
+    }
+
+    return text;
+};
