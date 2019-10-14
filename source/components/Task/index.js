@@ -12,7 +12,7 @@ import Remove from "../../theme/assets/Remove";
 
 export default class Task extends Component {
     static propTypes = {
-        _deleteTask:   func.isRequired,
+        _removeTaskAsync:   func.isRequired,
         // created: PropTypes.number.isRequired, // number? date?
         _favoriteTask: func.isRequired,
         favorite:      bool.isRequired,
@@ -23,13 +23,13 @@ export default class Task extends Component {
     constructor () {
         super();
         this._favoriteTask = this._favoriteTask.bind(this);
-        this._deleteTask = this._deleteTask.bind(this);
+        this._removeTaskAsync = this._removeTaskAsync.bind(this);
     }
 
-    _deleteTask () {
-        const { _deleteTask, id } = this.props;
+    _removeTaskAsync () {
+        const { _removeTaskAsync, id } = this.props;
 
-        _deleteTask(id);
+        _removeTaskAsync(id);
     }
 
     _favoriteTask () {
@@ -53,7 +53,7 @@ export default class Task extends Component {
     });
 
     render () {
-        const { message, created, favorite, _favoriteTask, id, _deleteTask } = this.props;
+        const { message, created, favorite, _favoriteTask, id, _removeTaskAsync } = this.props;
 
         console.log(this.props);
 
@@ -82,7 +82,7 @@ export default class Task extends Component {
                         id = { id }
                     />
                     <Edit className = { Styles.updateTaskMessageOnClick } />
-                    <Remove onClick = { this._deleteTask } />
+                    <Remove onClick = { this._removeTaskAsync } />
                 </div>
             </li>
         );

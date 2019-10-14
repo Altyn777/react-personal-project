@@ -16,42 +16,41 @@ import { getUniqueID, delay } from "../../instruments/helpers";
 
 export default class Scheduler extends Component {
     static propTypes = {
-        _createTask: PropTypes.func,
+        _createTaskAsync: PropTypes.func,
     };
 
     constructor () {
         super();
 
-        this._createTask = this._createTask.bind(this);
+        this._createTaskAsync = this._createTaskAsync.bind(this);
         this._fieldTextChange = this._fieldTextChange.bind(this);
         this._submitTask = this._submitTask.bind(this);
-        this._setSpinningState = this._setSpinningState.bind(this);
+        this._setTasksFetchingState = this._setTasksFetchingState.bind(this);
         this._favoriteTask = this._favoriteTask.bind(this);
-        this._deleteTask = this._deleteTask.bind(this);
+        this._removeTaskAsync = this._removeTaskAsync.bind(this);
     }
 
     state = {
-        tasks: [{ id: '123', message: 'поставить звездочку', created: moment.unix(1526825076849), favorite: true },
-            { id: '163', message: 'создать задачу', created: moment.unix(1526663339999), favorite: false }],
-        isSpinning: false,
-        nameGiver:  '',
-        searchText: '',
-        favorite:   false,
+        tasks: [{ id: '123', message: 'Отметить задачу как выполненную', created: moment.unix(1526825076849), favorite: true },
+            { id: '163', message: 'редактировать текст задачи', created: moment.unix(1526663339999), favorite: false }],
+        isTasksFetching: false,
+        newTaskMessage:  '',
+        tasksFilter: '',
     };
 
-    _setSpinningState (state) {
+    _setTasksFetchingState (state) {
         this.setState({
-            isSpinning: state,
+            isTasksFetching: state,
         });
     }
 
-    async _createTask (nameGiver) {
-        this._setSpinningState(true);
+    async _createTaskAsync (newTaskMessage) {
+        this._setTasksFetchingState(true);
 
         const task = {
             id:       getUniqueID(),
             created:  moment().utc(),
-            message:  nameGiver,
+            message:  newTaskMessage,
             favorite: false,
         };
 
@@ -61,14 +60,14 @@ export default class Scheduler extends Component {
 
         this.setState(({ tasks }) => ({
             tasks:      [task, ...tasks],
-            isSpinning: false,
+            isTasksFetching: false,
         }));
     }
 
     async _favoriteTask (id, favorite) { // идентификатор задачи, на которую ставят звездочку
         //const { favorite } = this.props;
 
-        this._setSpinningState(true);
+        this._setTasksFetchingState(true);
 
         await delay(600);
 
@@ -87,12 +86,12 @@ export default class Scheduler extends Component {
 
         this.setState({
             tasks:      newTasks,
-            isSpinning: false,
+            isTasksFetching: false,
         });
     }
 
-    async _deleteTask (id) {
-        this._setSpinningState(true);
+    async _removeTaskAsync (id) {
+        this._setTasksFetchingState(true);
 
         await delay(600);
 
@@ -100,7 +99,7 @@ export default class Scheduler extends Component {
 
         this.setState({
             tasks:      newTasks,
-            isSpinning: false,
+            isTasksFetching: false,
         });
     }
 
@@ -112,38 +111,43 @@ export default class Scheduler extends Component {
 
     _submitTask (event) {
         event.preventDefault();
-        const { nameGiver } = this.state;
+        const { newTaskMessage } = this.state;
 
         console.log(this.state);
 
-        if (!nameGiver) {
+        if (!newTaskMessage) {
             return null;
         }
 
-        this._createTask(nameGiver);
+        this._createTaskAsync(newTaskMessage);
 
         this.setState({
-            nameGiver: '',
+            newTaskMessage: '',
         });
     }
 
     render () {
-        const { tasks, isSpinning, nameGiver, searchText } = this.state;
+        const { tasks, isTasksFetching, newTaskMessage, tasksFilter } = this.state;
 
         const tasksJSX = tasks.map((task) => {
-            return <Task key = { task.id } { ...task } _deleteTask = { this._deleteTask } _favoriteTask = { this._favoriteTask } />;
+            return (<Task
+                key = { task.id }
+                { ...task }
+                _removeTaskAsync = { this._removeTaskAsync }
+                _favoriteTask = { this._favoriteTask }
+            />);
         });
 
         return (
             <section className = { Styles.scheduler }>
-                <Spinner isSpinning = { isSpinning } />
+                <Spinner isSpinning = { isTasksFetching } />
                 <main>
                     <header>
                         <h1>Планировщик:</h1>
                         <input
-                            name = 'searchText'
+                            name = 'tasksFilter'
                             placeholder = 'Поиск'
-                            value = { searchText }
+                            value = { tasksFilter }
                             onChange = { this._fieldTextChange }
                         />
                     </header>
@@ -151,10 +155,10 @@ export default class Scheduler extends Component {
                     <section>
                         <form onSubmit = { this._submitTask }>
                             <input
-                                name = 'nameGiver'
+                                name = 'newTaskMessage'
                                 placeholer = 'Новая задача'
                                 type = 'text'
-                                value = { nameGiver }
+                                value = { newTaskMessage }
                                 onChange = { this._fieldTextChange }
                             />
                             <button>Создать</button>
