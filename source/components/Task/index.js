@@ -1,16 +1,42 @@
 // Core
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import moment from "moment";
-import PropTypes from 'prop-types';
+import { string, number, bool, func } from 'prop-types';
 
 // Instruments
 import Styles from './styles.m.css';
+import Checkbox from "../../theme/assets/Checkbox";
+import Star from "../../theme/assets/Star";
+import Edit from "../../theme/assets/Edit";
+import Remove from "../../theme/assets/Remove";
 
-export default class Task extends PureComponent {
+export default class Task extends Component {
     static propTypes = {
-        message: PropTypes.string.isRequired,
+        _deleteTask:   func.isRequired,
         // created: PropTypes.number.isRequired, // number? date?
+        _favoriteTask: func.isRequired,
+        favorite:      bool.isRequired,
+        id:            string.isRequired,
+        message:       string.isRequired,
     };
+
+    constructor () {
+        super();
+        this._favoriteTask = this._favoriteTask.bind(this);
+        this._deleteTask = this._deleteTask.bind(this);
+    }
+
+    _deleteTask () {
+        const { _deleteTask, id } = this.props;
+
+        _deleteTask(id);
+    }
+
+    _favoriteTask () {
+        const { _favoriteTask, id, favorite } = this.props;
+
+        _favoriteTask(id, favorite);
+    }
 
     _getTaskShape = ({
         id = this.props.id,
@@ -27,14 +53,38 @@ export default class Task extends PureComponent {
     });
 
     render () {
-        const { message, created } = this.props;
+        const { message, created, favorite, _favoriteTask, id, _deleteTask } = this.props;
+
+        console.log(this.props);
 
         return (
-            <section>
-                <li className = { Styles.task } >
-                    <p>{message}</p>
-                    <time>{moment.unix(created).format('D MMMM h:mm a')}</time>
-                </li>
-            </section>);
+            <li className = { Styles.task } >
+                <div className = { Styles.content }>
+                    <Checkbox
+                        className = { Styles.toggleTaskCompletedState }
+                        color2 = 'white'
+                    />
+                    <span>{message}</span>
+                    <input
+                        type = 'text'
+                        value = { message }
+                        onChange
+                    />
+                    <time>{ created.format('D MMMM h:mm a') }</time>
+                </div>
+                <div className = { Styles.actions }>
+                    <Star
+                        onClick = { this._favoriteTask }
+                        checked = { favorite }
+                        className = { Styles.toggleTaskFavoriteState }
+                        color1 = 'yellow'
+                        color2 = 'grey'
+                        id = { id }
+                    />
+                    <Edit className = { Styles.updateTaskMessageOnClick } />
+                    <Remove onClick = { this._deleteTask } />
+                </div>
+            </li>
+        );
     }
 }

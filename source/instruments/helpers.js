@@ -1,6 +1,7 @@
 // Core
 import moment from 'moment';
-import { v4 } from 'uuid';
+// import { v4 } from 'uuid';
+import v4 from 'uuid/v4';
 
 export function getDisplayName (WrappedComponent) {
     return WrappedComponent.displayName || WrappedComponent.name || 'Component';
@@ -70,4 +71,10 @@ export const getUniqueID = (length = 15) => {
     }
 
     return text;
+};
+
+export const delay = (duration = 1000) => {
+    return new Promise((resolve) => {
+        setTimeout(resolve, duration);
+    });
 };

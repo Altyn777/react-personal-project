@@ -5,7 +5,7 @@ import { number } from 'prop-types';
 // Instruments
 import { getDisplayName } from './';
 
-const decorateSvg = (
+const decorateSvg = ( // изображение
     { viewBoxWidth = 0, viewBoxHeight = 0, width = 0, height = 0 } = {},
     Enhanceable,
 ) => {
@@ -16,17 +16,17 @@ const decorateSvg = (
         };
 
         static defaultProps = {
-            color1: '#f00',
+            color1: 'green',
             width,
             height,
         };
 
         state = {
-            hover:   false,
+            hover:   false, // навестись
             checked: false,
         };
 
-        _getEnhanceableProps = () => {
+        _getEnhanceableProps = () => { // улучшаемые
             const enhanceableProps = Object.assign({}, this.state, this.props);
 
             delete enhanceableProps.width;
