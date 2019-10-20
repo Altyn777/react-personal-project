@@ -4,7 +4,6 @@ import { hot } from 'react-hot-loader';
 
 // Components
 import Scheduler from "../../components/Scheduler";
-import { Provider } from "../../components/HOC/withProfile";
 
 @hot(module)
 export default class App extends Component {

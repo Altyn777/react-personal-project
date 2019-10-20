@@ -1,175 +1,181 @@
 // Core
 import React, { Component } from 'react';
-import moment from "moment";
-import PropTypes from 'prop-types';
 
 // Components
-import Task from "../Task";
-import Spinner from "../Spinner";
+import Task from '../Task';
+import Header from '../Header';
+import Spinner from '../Spinner';
+import Composer from '../Composer';
 
 // Instruments
 import Styles from './styles.m.css';
 import { api } from '../../REST'; // ! Импорт модуля API должен иметь именно такой вид (import { api } from '../../REST')
-import Checkbox from "../../theme/assets/Checkbox";
-
-import { getUniqueID, delay } from "../../instruments/helpers";
+import Checkbox from '../../theme/assets/Checkbox';
+import { sortTasksByGroup } from '../../instruments/helpers';
+import FlipMove from 'react-flip-move';
 
 export default class Scheduler extends Component {
-    static propTypes = {
-        _createTaskAsync: PropTypes.func,
+    state = {
+        tasks:             [],
+        isTasksFetching:   false,
+        tasksFilter:       '',
+        allTasksCompleted: false,
     };
 
-    constructor () {
-        super();
-
-        this._createTaskAsync = this._createTaskAsync.bind(this);
-        this._fieldTextChange = this._fieldTextChange.bind(this);
-        this._submitTask = this._submitTask.bind(this);
-        this._setTasksFetchingState = this._setTasksFetchingState.bind(this);
-        this._favoriteTask = this._favoriteTask.bind(this);
-        this._removeTaskAsync = this._removeTaskAsync.bind(this);
+    async componentDidMount () {
+        await this._fetchTasksAsync();
     }
 
-    state = {
-        tasks: [{ id: '123', message: 'Отметить задачу как выполненную', created: moment.unix(1526825076849), favorite: true },
-            { id: '163', message: 'редактировать текст задачи', created: moment.unix(1526663339999), favorite: false }],
-        isTasksFetching: false,
-        newTaskMessage:  '',
-        tasksFilter: '',
-    };
-
-    _setTasksFetchingState (state) {
+    _setTaskFetchingState = (state) => {
         this.setState({
             isTasksFetching: state,
         });
-    }
+    };
 
-    async _createTaskAsync (newTaskMessage) {
-        this._setTasksFetchingState(true);
+    _fetchTasksAsync = async () => {
+        this._setTaskFetchingState(true);
 
-        const task = {
-            id:       getUniqueID(),
-            created:  moment().utc(),
-            message:  newTaskMessage,
-            favorite: false,
-        };
+        const tasks = await api.fetchTasks();
 
-        console.log(task.created.toString());
+        this.setState({ tasks, isTasksFetching: false }, () => this.setState({ allTasksCompleted: this._getAllCompleted() }));
+    };
 
-        await delay(1200);
+    _createTaskAsync = async (message) => {
+        this._setTaskFetchingState(true);
+
+        const newTask = await api.createTask(message);
 
         this.setState(({ tasks }) => ({
-            tasks:      [task, ...tasks],
+            tasks:             [newTask, ...tasks],
+            isTasksFetching:   false,
+            allTasksCompleted: false,
+        }));
+    };
+
+    _removeTaskAsync = async (id) => {
+        this._setTaskFetchingState(true);
+
+        await api.removeTask(id);
+
+        this.setState(({ tasks }) => ({
+            tasks:           tasks.filter((task) => task.id !== id),
             isTasksFetching: false,
         }));
-    }
 
-    async _favoriteTask (id, favorite) { // идентификатор задачи, на которую ставят звездочку
-        //const { favorite } = this.props;
+        this.setState(() => ({
+            allTasksCompleted: this._getAllCompleted(),
+        }));
+    };
 
-        this._setTasksFetchingState(true);
+    _updateTaskAsync = async (task) => {
+        this._setTaskFetchingState(true);
 
-        await delay(600);
+        const [updatedTask] = await api.updateTask(task);
 
-        const newTasks = this.state.tasks.map((task) => {
-            if (task.id === id) {
-                task.favorite = !favorite;
-
-                return {
-                    ...task,
-                    checked: favorite,
-                };
-            }
-
-            return task;
-        });
-
-        this.setState({
-            tasks:      newTasks,
+        this.setState(({ tasks }) => ({
+            tasks:           tasks.map((item) => item.id === updatedTask.id ? updatedTask : item),
             isTasksFetching: false,
-        });
-    }
+        }));
 
-    async _removeTaskAsync (id) {
-        this._setTasksFetchingState(true);
+        this.setState(() => ({
+            allTasksCompleted: this._getAllCompleted(),
+        }));
+    };
 
-        await delay(600);
+    _toggleTaskFavoriteState = (id) => {
+        let [updatedTask] = this.state.tasks.filter((task) => task.id === id);
 
-        const newTasks = this.state.tasks.filter((task) => task.id !== id);
+        updatedTask = { ...updatedTask, favorite: !updatedTask.favorite };
 
-        this.setState({
-            tasks:      newTasks,
-            isTasksFetching: false,
-        });
-    }
+        this._updateTaskAsync(updatedTask);
+    };
 
-    _fieldTextChange (event) {
-        this.setState({
-            [event.target.name]: event.target.value,
-        });
-    }
+    _updateTasksFilter = (tasksFilter) => {
+        this.setState({ tasksFilter }, () => this._renderTasks());
+    };
 
-    _submitTask (event) {
-        event.preventDefault();
-        const { newTaskMessage } = this.state;
+    _toggleTaskCompletedState = (id) => {
+        let [updatedTask] = this.state.tasks.filter((task) => task.id === id);
 
-        console.log(this.state);
+        updatedTask = { ...updatedTask, completed: !updatedTask.completed };
 
-        if (!newTaskMessage) {
+        this._updateTaskAsync(updatedTask);
+    };
+
+    _completeAllTasksAsync = async () => {
+
+        if (this._getAllCompleted()) {
             return null;
         }
 
-        this._createTaskAsync(newTaskMessage);
+        this._setTaskFetchingState(true);
 
-        this.setState({
-            newTaskMessage: '',
+        const uncompletedTasks = this.state.tasks.filter((task) => !task.completed);
+
+        await api.completeAllTasks(uncompletedTasks.map((task) => ({ ...task, completed: true })));
+
+        this.setState(({ tasks }) => ({
+            tasks:             tasks.map((task) => task.completed ? task : { ...task, completed: true }),
+            isTasksFetching:   false,
+            allTasksCompleted: true,
+        }));
+    };
+
+    _getAllCompleted = () => {
+        return !this.state.tasks.length
+            ? false
+            : !this.state.tasks.some((item) => !item.completed);
+    };
+
+    _renderTasks = () => {
+
+        const { tasks, tasksFilter } = this.state;
+
+        let tasksToDisplay = !tasksFilter ? tasks
+            : tasks.filter((task) => task.message.toLowerCase().startsWith(tasksFilter));
+
+        tasksToDisplay = sortTasksByGroup(tasksToDisplay);
+
+        return tasksToDisplay.map((task) => {
+            return (
+                <Task
+                    key = { task.id }
+                    { ...task }
+                    _removeTaskAsync = { this._removeTaskAsync }
+                    _updateTaskAsync = { this._updateTaskAsync }
+                />
+            );
         });
-    }
+    };
 
     render () {
-        const { tasks, isTasksFetching, newTaskMessage, tasksFilter } = this.state;
-
-        const tasksJSX = tasks.map((task) => {
-            return (<Task
-                key = { task.id }
-                { ...task }
-                _removeTaskAsync = { this._removeTaskAsync }
-                _favoriteTask = { this._favoriteTask }
-            />);
-        });
+        const { isTasksFetching, allTasksCompleted } = this.state;
+        const tasksJSX = this._renderTasks();
 
         return (
             <section className = { Styles.scheduler }>
                 <Spinner isSpinning = { isTasksFetching } />
                 <main>
-                    <header>
-                        <h1>Планировщик:</h1>
-                        <input
-                            name = 'tasksFilter'
-                            placeholder = 'Поиск'
-                            value = { tasksFilter }
-                            onChange = { this._fieldTextChange }
-                        />
-                    </header>
-                    <input type = 'submit' value = 'Create Task' />
+                    <Header _updateTasksFilter = { this._updateTasksFilter } />
                     <section>
-                        <form onSubmit = { this._submitTask }>
-                            <input
-                                name = 'newTaskMessage'
-                                placeholer = 'Новая задача'
-                                type = 'text'
-                                value = { newTaskMessage }
-                                onChange = { this._fieldTextChange }
-                            />
-                            <button>Создать</button>
-                        </form>
-                        <ul>
-                            {tasksJSX}
-                        </ul>
+                        <Composer _createTask = { this._createTaskAsync } />
+                        <div>
+                            <ul>
+                                <FlipMove
+                                    enterAnimation = 'fade'
+                                    leaveAnimation = 'fade'>
+                                    {tasksJSX}
+                                </FlipMove>
+                            </ul>
+                        </div>
                     </section>
                     <footer>
-                        <Checkbox color1 = 'green' color2 = 'white' />
-                        <div>Задачи выполнены!</div>
+                        <Checkbox
+                            checked = { allTasksCompleted }
+                            color2 = 'white'
+                            onClick = { this._completeAllTasksAsync }
+                        />
+                        <span className = { Styles.completeAllTasks }>Все задачи выполнены!</span>
                     </footer>
                 </main>
             </section>
