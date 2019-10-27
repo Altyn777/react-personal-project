@@ -401,11 +401,11 @@ describe('Компонент Scheduler:', () => {
                 expect(result.state('newTaskMessage')).toBe('');
             });
 
-            test('в качестве изначального значения элемента <input /> внутри элемента <form /> должна быть пустая строка.', () => {
+            test('в качестве изначального значения элемента input внутри элемента form должна быть пустая строка.', () => {
                 expect(result.find('form > input').prop('value')).toBe('');
             });
 
-            test('значение элемента <input /> внутри элемента form должно контролироваться свойством state.newTaskMessage', () => {
+            test('значение элемента input внутри элемента form должно контролироваться свойством state.newTaskMessage', () => {
                 result.setState({
                     newTaskMessage: testMessage2,
                 });
@@ -415,11 +415,11 @@ describe('Компонент Scheduler:', () => {
                 result.setState(initialState);
             });
 
-            test('максимальная длина строки элемента <input /> не должна превышать 50 символов', () => {
+            test('максимальная длина строки элемента input не должна превышать 50 символов', () => {
                 expect(result.find('form > input').prop('maxLength')).toBe(50);
             });
 
-            test('при введение текста в элемент <input /> внутри <form /> должен сработать метод this._updateNewTaskMessage', () => {
+            test('при введение текста в элемент input внутри form должен сработать метод this._updateNewTaskMessage', () => {
                 const syntheticEvent = {
                     target: {
                         value: testMessage2,
@@ -458,13 +458,13 @@ describe('Компонент Scheduler:', () => {
                 expect(result.state('tasksFilter')).toBe('');
             });
 
-            test('в качестве изначального значения элемента <input type="search" /> должна быть пустая строка', () => {
+            test('в качестве изначального значения элемента input type="search" должна быть пустая строка', () => {
                 expect(result.find('input[type="search"]').prop('value')).toBe(
                     '',
                 );
             });
 
-            test('значение элемента <input type="search" /> должно контролироваться свойством state.tasksFilter', () => {
+            test('значение элемента input type="search" должно контролироваться свойством state.tasksFilter', () => {
                 result.setState({
                     tasksFilter: testMessage2,
                 });
@@ -474,7 +474,7 @@ describe('Компонент Scheduler:', () => {
                 result.setState(initialState);
             });
 
-            test('ввод текста в <input type="search" /> должен привести к вызову обработчика this._updateTasksFilter', () => {
+            test('ввод текста в input type="search" должен привести к вызову обработчика this._updateTasksFilter', () => {
                 result.find('input[type="search"]').simulate('change', {
                     target: {
                         value: testMessage2,
@@ -486,7 +486,7 @@ describe('Компонент Scheduler:', () => {
         });
 
         describe('выполнения всех задачи одной кнопкой:', () => {
-            test('при клике на <Checkbox /> с текстом «Все задачи выполнены» в <footer /> — должен быть вызван обработчик this._completeAllTasksAsync', () => {
+            test('при клике на Checkbox с текстом «Все задачи выполнены» в footer — должен быть вызван обработчик this._completeAllTasksAsync', () => {
                 result.find('footer div').simulate('click');
 
                 expect(spies._completeAllTasksAsyncSpy).toHaveBeenCalledTimes(
