@@ -13,6 +13,7 @@ import cx from 'classnames';
 export default class Task extends PureComponent {
     static propTypes = {
         _removeTaskAsync: func.isRequired,
+        _updateTaskAsync: func.isRequired,
         completed:        bool.isRequired,
         favorite:         bool.isRequired,
         id:               string.isRequired,
@@ -35,7 +36,7 @@ export default class Task extends PureComponent {
         message:   this.props.message,
     });
 
-    _removeTaskAsync = () => {
+    _removeTask = () => {
         return this.props._removeTaskAsync(this.props.id);
     };
 
@@ -151,7 +152,7 @@ export default class Task extends PureComponent {
                         className = { Styles.updateTaskMessageOnClick }
                         onClick = { this._updateTaskMessageOnClick }
                     />
-                    <Remove onClick = { this._removeTaskAsync } />
+                    <Remove onClick = { this._removeTask } />
                 </div>
             </li>
         );
