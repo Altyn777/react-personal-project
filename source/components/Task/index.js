@@ -35,7 +35,7 @@ export default class Task extends PureComponent {
         message:   this.props.message,
     });
 
-    _removeTaskAsync = () => {
+    _removeTask = () => {
         return this.props._removeTaskAsync(this.props.id);
     };
 
@@ -75,7 +75,7 @@ export default class Task extends PureComponent {
     };
 
     _updateNewTaskMessage = (event) => {
-        this.setState({ newTaskMessage: event.target.value });
+        this.setState({ newMessage: event.target.value });
     };
 
     _setTaskEditingState = (mode) => {
@@ -123,8 +123,9 @@ export default class Task extends PureComponent {
                 <div className = { Styles.content }>
                     <Checkbox
                         checked = { completed }
-                        className = { Styles._toggleTaskCompletedState }
-                        color2 = 'white'
+                        className = { Styles.toggleTaskCompletedState }
+                        color1 = '#3B8EF3'
+                        color2 = '#FFF'
                         onClick = { this._toggleTaskCompletedState }
                     />
                     <input
@@ -144,14 +145,15 @@ export default class Task extends PureComponent {
                     <Star
                         checked = { favorite }
                         className = { Styles.toggleTaskFavoriteState }
-                        color1 = 'yellow'
+                        color1 = '#3B8EF3'
+                        color2 = '#000'
                         onClick = { this._toggleTaskFavoriteState }
                     />
                     <Edit
                         className = { Styles.updateTaskMessageOnClick }
                         onClick = { this._updateTaskMessageOnClick }
                     />
-                    <Remove onClick = { this._removeTaskAsync } />
+                    <Remove onClick = { this._removeTask } />
                 </div>
             </li>
         );
