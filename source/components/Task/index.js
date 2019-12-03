@@ -13,6 +13,7 @@ import cx from 'classnames';
 export default class Task extends PureComponent {
     static propTypes = {
         _removeTaskAsync: func.isRequired,
+        _updateTaskAsync: func.isRequired,
         completed:        bool.isRequired,
         favorite:         bool.isRequired,
         id:               string.isRequired,

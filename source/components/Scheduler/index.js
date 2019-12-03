@@ -20,7 +20,8 @@ export default class Scheduler extends Component {
         isTasksFetching:   false,
         tasksFilter:       '',
         allTasksCompleted: false,
-    };
+        newTaskMessage:    '',
+};
 
     async componentDidMount () {
         await this._fetchTasksAsync();
@@ -125,6 +126,10 @@ export default class Scheduler extends Component {
         return !this.state.tasks.length
             ? false
             : !this.state.tasks.some((item) => !item.completed);
+    };
+
+    _updateNewTaskMessage = (event) => {
+        this.setState({ newTaskMessage: event.target.value });
     };
 
     _renderTasks = () => {
