@@ -1,6 +1,5 @@
 // Core
 import moment from 'moment';
-// import { v4 } from 'uuid';
 import v4 from 'uuid/v4';
 
 export function getDisplayName (WrappedComponent) {
