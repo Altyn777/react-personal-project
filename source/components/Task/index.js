@@ -22,22 +22,32 @@ export default class Task extends PureComponent {
 
     constructor (props) {
         super(props);
-
-        this.taskInput = React.createRef();
         this.state.newTaskMessage = props.message;
     }
 
     state = { isTaskEditing: false };
 
-    _getTaskShape = () => ({
-        id:        this.props.id,
-        completed: this.props.completed,
-        favorite:  this.props.favorite,
-        message:   this.props.message,
+    // _getTaskShape = () => ({
+    //     id:        this.props.id,
+    //     completed: this.props.completed,
+    //     favorite:  this.props.favorite,
+    //     message:   this.props.message,
+    // });
+    _getTaskShape = ({
+        id = this.props.id,
+        completed = this.props.completed,
+        favorite = this.props.favorite,
+        message = this.props.message,
+    }) => ({
+        id,
+        completed,
+        favorite,
+        message,
     });
+    taskInput = React.createRef();
 
     _removeTask = () => {
-        return this.props._removeTaskAsync(this.props.id);
+        this.props._removeTaskAsync(this.props.id);
     };
 
     getTaskStyles = () => {
@@ -47,11 +57,15 @@ export default class Task extends PureComponent {
     };
 
     _toggleTaskCompletedState = () => {
-        this.props._updateTaskAsync({ ...this._getTaskShape(), completed: !this.props.completed });
+        this.props._updateTaskAsync(
+            this._getTaskShape({ completed: !this.props.completed })
+        );
     };
 
     _toggleTaskFavoriteState = () => {
-        this.props._updateTaskAsync({ ...this._getTaskShape(), favorite: !this.props.favorite });
+        this.props._updateTaskAsync(
+            this._getTaskShape({ favorite: !this.props.favorite })
+        );
     };
 
     _updateTaskMessageOnClick = () => {
@@ -72,7 +86,9 @@ export default class Task extends PureComponent {
             return null;
         }
 
-        this.props._updateTaskAsync({ ...this._getTaskShape(), message: this.state.newTaskMessage });
+        this.props._updateTaskAsync(
+            this._getTaskShape({ message: this.state.newMessage })
+        );
     };
 
     _updateNewTaskMessage = (event) => {
@@ -92,15 +108,13 @@ export default class Task extends PureComponent {
     };
 
     _updateTaskMessageOnKeyDown = (event) => {
-        if (!this.state.newTaskMessage) {
+        if (this.state.newMessage === '') {
             return null;
         }
 
-        const key = event.key;
-
-        if (key === 'Enter') {
+        if (event.key === 'Enter') {
             this._updateTask();
-        } else if (key === 'Escape') {
+        } else if (event.key === 'Escape') {
             this._cancelUpdatingTaskMessage();
         }
     };
@@ -154,7 +168,10 @@ export default class Task extends PureComponent {
                         className = { Styles.updateTaskMessageOnClick }
                         onClick = { this._updateTaskMessageOnClick }
                     />
-                    <Remove onClick = { this._removeTask } />
+                    <Remove
+                        className = { Styles.removeTask }
+                        onClick = { this._removeTask }
+                    />
                 </div>
             </li>
         );
